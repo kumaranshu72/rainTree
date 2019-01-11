@@ -1,6 +1,6 @@
 import os
 import time
-import collections
+from operator import itemgetter
 
 def convert2ephoc(tm):
     pattern = '%d.%m.%Y %H:%M:%S'
@@ -27,7 +27,6 @@ for f in files:
               disconnects[convert2ephoc(date)].append(result[0][ind+13:result[0].find(" ",ind+13)])
     f_in.close()
 
-sorted_disconnects =  collections.OrderedDict(sorted(disconnects.items()))
 #for x in sorted_disconnects:
 #    print(sorted_disconnects[x])
 
@@ -36,3 +35,18 @@ from_date = date[0:2]+"."+date[3:5]+"."+date[6:10]+" 00:00:00"
 from_ts = convert2ephoc(from_date)
 to_date = date[14:16]+"."+date[17:19]+"."+date[20:24]+" 00:00:00"
 to_ts = convert2ephoc(to_date)
+
+system = {}
+for x in disconnects:
+    if x >= from_ts and x <= to_ts:
+        for y in disconnects[x]:
+            if system.get(y):
+                system[y]+=1
+            else:
+                system[y] = 1
+
+output = sorted(system.items(), key=itemgetter(1),reverse=True)
+
+print("\nComputer Name Number of Disconnects\n")
+for x in output:
+    print(x[0]+" "+str(x[1]))
